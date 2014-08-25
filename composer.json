@@ -1,0 +1,22 @@
+{
+    "name": "kslimani/cerberus",
+    "description": "PHP Error handler",
+    "keywords": ["cerberus", "error", "exception", "handler", "httpkernel", "psr-3", "silex", "symfony"],
+    "homepage": "https://github.com/kslimani/cerberus",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "kslimani"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.2.*",
+        "fabpot/php-cs-fixer": "dev-master"
+    },
+    "autoload": {
+        "psr-4": { "Cerberus\\": "src/Cerberus" }
+    }
+}
