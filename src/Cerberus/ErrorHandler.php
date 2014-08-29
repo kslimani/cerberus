@@ -10,6 +10,7 @@ use Cerberus\Handler\Handler;
 use Cerberus\Handler\HandlerList;
 use Cerberus\Handler\CallableHandler;
 use Cerberus\Exception\ContextErrorException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class ErrorHandler
 {
@@ -149,6 +150,9 @@ class ErrorHandler
             if (!isset($extra['exception'])) {
                 $extra['trace'] = debug_backtrace(false);
             }
+        }
+        if (isset($extra['exception']) && $extra['exception'] instanceof HttpExceptionInterface) {
+            $extra['code'] = $extra['exception']->getStatusCode();
         }
 
         return $extra;
