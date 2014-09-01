@@ -17,6 +17,7 @@ class ErrorHandler
     const E_EXCEPTION = 0;
 
     private $reservedMemory;
+    protected $disabled;
     protected $handlerList;
     protected $debug;
     protected $throwExceptions;
@@ -25,6 +26,7 @@ class ErrorHandler
     public function __construct($debug = true, $throwExceptions = false, $throwNonFatal = false)
     {
         $this->reservedMemory = str_repeat('0', 20480);
+        $this->disabled = false;
         $this->setDebug($debug);
         $this->setThrowExceptions($throwExceptions);
         $this->setThrowNonFatal($throwNonFatal);
@@ -38,6 +40,16 @@ class ErrorHandler
         set_error_handler(array($this, 'onError'));
         set_exception_handler(array($this, 'onException'));
         register_shutdown_function(array($this, 'onShutdown'));
+    }
+
+    public function enable()
+    {
+        $this->disabled = false;
+    }
+
+    public function disable()
+    {
+        $this->disabled = true;
     }
 
     public function setDebug($debug)
@@ -160,6 +172,10 @@ class ErrorHandler
 
     private function handle($type, $displayType, $message, $file, $line, $extra = array())
     {
+        if ($this->disabled) {
+            return false;
+        }
+
         foreach ($this->handlerList as $handler) {
             if (true === $handler->handle($type, $displayType, $message, $file, $line, $extra)) {
                 return true;
