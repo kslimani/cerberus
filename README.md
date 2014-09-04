@@ -9,7 +9,7 @@ Add in `composer.json` file :
 ```json
 {
     "require": {
-        "kslimani/cerberus": "dev-master"
+        "kslimani/cerberus": "~0.1.0"
     },
     "repositories": [
       {

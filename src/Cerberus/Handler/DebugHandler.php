@@ -8,7 +8,7 @@ namespace Cerberus\Handler;
 
 class DebugHandler extends Handler
 {
-    protected $version = '1.0.0 beta';
+    protected $version = '0.1.0 beta';
     protected $charset = 'utf-8';
     protected $maxArgDisplaySize = 4096;
     protected $maxErrorCount = 30;
