@@ -21,6 +21,10 @@ class DebugHandler extends Handler
 
     public function handle($type, $displayType, $message, $file, $line, $extra)
     {
+        if ('cli' === PHP_SAPI) {
+            return;
+        }
+
         if ($this->canIgnoreError($type)) {
             return;
         }

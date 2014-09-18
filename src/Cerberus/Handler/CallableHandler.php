@@ -13,7 +13,7 @@ class CallableHandler extends Handler
     public function __construct($callable, $handleNonFatal = false)
     {
         if (!is_callable($callable)) {
-            throw new InvalidArgumentException('Argument to '.__METHOD__.' must be valid callable');
+            throw new \InvalidArgumentException('Argument to '.__METHOD__.' must be valid callable');
         }
         $this->callable = $callable;
         $this->setHandleNonFatal($handleNonFatal);
