@@ -57,6 +57,11 @@ abstract class Handler implements HandlerInterface
         return (!$this->errorHandler->isFatal($type) && !$this->getHandleNonFatal());
     }
 
+    public function getDisplayName($extra)
+    {
+        return isset($extra['displayType']) ? $extra['displayType'] : 'E_UNKNOWN';
+    }
+
     public function getMemory($extra)
     {
         return (isset($extra['memory']) && is_numeric($extra['memory'])) ? $extra['memory'] : 0;

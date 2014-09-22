@@ -10,14 +10,16 @@ class MockError
     protected $file;
     protected $line;
     protected $handled;
+    protected $context;
 
-    public function __construct($displayType, $type, $message, $file, $line)
+    public function __construct($displayType, $type, $message, $file, $line, $context = array())
     {
         $this->displayType = $displayType;
         $this->type = $type;
         $this->message = $message;
         $this->file = $file;
         $this->line = $line;
+        $this->context = $context;
         $this->setHandled(false);
     }
 
@@ -54,5 +56,10 @@ class MockError
     public function getLine()
     {
         return $this->line;
+    }
+
+    public function getContext()
+    {
+        return $this->context;
     }
 }

@@ -31,7 +31,7 @@ class ErrorHandler
         ini_set('display_errors', 0);
         $this->reservedMemory = str_repeat('0', 20480);
         $this->handlerList = new HandlerList($this);
-        $this->disabled = false;
+        $this->enable();
         $this->setDebug($debug);
         $this->setThrowExceptions($throwExceptions);
         $this->setThrowNonFatal($throwNonFatal);
@@ -122,11 +122,13 @@ class ErrorHandler
 
         return $this->handle(
             $type,
-            self::errorType($type),
             $message,
             $file,
             $line,
-            $this->getErrorExtra(array('context' => $context))
+            $this->getErrorExtra(array(
+                'displayType' => self::errorType($type),
+                'context' => $context
+            ))
         );
     }
 
@@ -140,11 +142,13 @@ class ErrorHandler
 
         return $this->handle(
             self::E_EXCEPTION,
-            $displayType,
             $e->getMessage(),
             $e->getFile(),
             $e->getLine(),
-            $this->getErrorExtra(array('exception' => $e))
+            $this->getErrorExtra(array(
+                'displayType' => $displayType,
+                'exception' => $e
+            ))
         );
     }
 
@@ -160,11 +164,12 @@ class ErrorHandler
         if ($err) {
             return $this->handle(
                 $err['type'],
-                self::errorType($err['type']),
                 $err['message'],
                 $err['file'],
                 $err['line'],
-                $this->getErrorExtra()
+                $this->getErrorExtra(array(
+                    'displayType' => self::errorType($err['type'])
+                ))
             );
         }
     }

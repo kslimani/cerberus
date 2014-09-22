@@ -8,10 +8,9 @@ namespace Cerberus\Handler;
 
 class DebugHandler extends Handler
 {
-    protected $version = '0.1.0 beta';
+    protected $version = '0.1.1 beta';
     protected $charset = 'utf-8';
     protected $maxArgDisplaySize = 4096;
-    protected $maxErrorCount = 30;
 
     public function __construct($handleNonFatal = false)
     {
@@ -19,7 +18,7 @@ class DebugHandler extends Handler
         $this->setHandleNonFatal($handleNonFatal);
     }
 
-    public function handle($type, $displayType, $message, $file, $line, $extra)
+    public function handle($type, $message, $file, $line, $extra)
     {
         if ('cli' === PHP_SAPI) {
             return;
@@ -40,19 +39,29 @@ class DebugHandler extends Handler
         $content = sprintf(
             "<li><h2>%s</h2><ul><li>Memory used : %s</li>%s</ul></li>".
             "<li><h2>Output Buffer</h2><ul><li><code>%s</code></li></ul></li>",
-            sprintf("%s: %s in %s line %s", $displayType, $message, $file, $line),
+            sprintf("%s: %s in %s line %s", $this->getDisplayName($extra), $message, $file, $line),
             $this->formatMemory($this->getMemory($extra)),
             $this->traceToHtml($this->getTrace($extra)),
-            htmlentities($handler->emptyOutputBuffers(), ENT_COMPAT, $this->charset)
+            htmlentities($handler->emptyOutputBuffers(), ENT_COMPAT, $this->getCharset())
         );
 
         return $this->sendResponse(
             $this->renderTemplate($template, array(
-                'charset' => $this->charset,
-                'version' => $this->version,
+                'charset' => $this->getCharset(),
+                'version' => $this->getVersion(),
                 'content' => $content
             ))
         );
+    }
+
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    public function getCharset()
+    {
+        return $this->charset;
     }
 
     public function setCharset($charset)
@@ -60,14 +69,14 @@ class DebugHandler extends Handler
         $this->charset = $charset;
     }
 
+    public function getMaxArgDisplaySize()
+    {
+        return $this->maxArgDisplaySize;
+    }
+
     public function setMaxArgDisplaySize($maxArgDisplaySize)
     {
         $this->maxArgDisplaySize = $maxArgDisplaySize;
-    }
-
-    public function setMaxErrorCount($maxErrorCount)
-    {
-        $this->maxErrorCount = $maxErrorCount;
     }
 
     private function renderTemplate($file, $values = array())
@@ -150,7 +159,7 @@ class DebugHandler extends Handler
             }
             if (($type === 'array') || ($type === 'object')) {
                 $text = $this->printReadable($arg, true);
-                if (mb_strlen($text) > $this->maxArgDisplaySize) {
+                if (mb_strlen($text) > $this->getMaxArgDisplaySize()) {
                     $text = ($type === 'object') ? get_class($arg)." object" : count($arg)." element(s)";
                     $text .= " <i>(content unavailable)</i>";
                 }
@@ -162,7 +171,7 @@ class DebugHandler extends Handler
                 $html .= "<tr><td>resource</td><td>$type</td></tr>";
                 continue;
             }
-            if (mb_strlen($arg) > $this->maxArgDisplaySize) {
+            if (mb_strlen($arg) > $this->getMaxArgDisplaySize()) {
                 $html .= "<tr><td><strong>$type</strong></td><td><i>(content unavailable)</i></td></tr>";
             } else {
                 $html .= "<tr><td><strong>$type</strong></td><td><code>$arg</code></td></tr>";

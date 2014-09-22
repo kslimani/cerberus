@@ -15,5 +15,5 @@ interface HandlerInterface
 
     public function getPriority();
 
-    public function handle($type, $displayType, $message, $file, $line, $extra);
+    public function handle($type, $message, $file, $line, $extra);
 }
