@@ -25,11 +25,11 @@ class LoggerHandler extends Handler
         $this->exceptionLogLevel = LogLevel::CRITICAL;
     }
 
-    public function handle($type, $displayType, $message, $file, $line, $extra)
+    public function handle($type, $message, $file, $line, $extra)
     {
         $this->logger->log(
             isset($extra['exception']) ? $this->exceptionLogLevel($extra['exception']) : $this->errorLogLevel($type),
-            sprintf('%s: %s in %s line %s', $displayType, $message, $file, $line),
+            sprintf('%s: %s in %s line %s', $this->getDisplayName($extra), $message, $file, $line),
             $extra
         );
 

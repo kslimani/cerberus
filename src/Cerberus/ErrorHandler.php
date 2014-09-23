@@ -22,11 +22,16 @@ class ErrorHandler
     protected $debug;
     protected $throwExceptions;
     protected $throwNonFatal;
+    protected $previousErrorHandler;
+    protected $previousExceptionHandler;
+    protected $registered;
 
     public function __construct($debug = true, $throwExceptions = false, $throwNonFatal = false)
     {
+        ini_set('display_errors', 0);
         $this->reservedMemory = str_repeat('0', 20480);
-        $this->disabled = false;
+        $this->handlerList = new HandlerList($this);
+        $this->enable();
         $this->setDebug($debug);
         $this->setThrowExceptions($throwExceptions);
         $this->setThrowNonFatal($throwNonFatal);
@@ -35,11 +40,17 @@ class ErrorHandler
 
     private function register()
     {
-        $this->handlerList = new HandlerList($this);
-        ini_set('display_errors', 0);
         set_error_handler(array($this, 'onError'));
         set_exception_handler(array($this, 'onException'));
         register_shutdown_function(array($this, 'onShutdown'));
+        $this->registered = true;
+    }
+
+    public function unRegister()
+    {
+        set_error_handler($this->previousErrorHandler);
+        set_exception_handler($this->previousExceptionHandler);
+        $this->registered = false;
     }
 
     public function enable()
@@ -111,11 +122,13 @@ class ErrorHandler
 
         return $this->handle(
             $type,
-            self::errorType($type),
             $message,
             $file,
             $line,
-            $this->getErrorExtra(array('context' => $context))
+            $this->getErrorExtra(array(
+                'displayType' => self::errorType($type),
+                'context' => $context
+            ))
         );
     }
 
@@ -129,16 +142,21 @@ class ErrorHandler
 
         return $this->handle(
             self::E_EXCEPTION,
-            $displayType,
             $e->getMessage(),
             $e->getFile(),
             $e->getLine(),
-            $this->getErrorExtra(array('exception' => $e))
+            $this->getErrorExtra(array(
+                'displayType' => $displayType,
+                'exception' => $e
+            ))
         );
     }
 
     public function onShutdown()
     {
+        if (!$this->registered) {
+            return;
+        }
         $this->reservedMemory = '';
         gc_collect_cycles();
         $err = error_get_last();
@@ -146,11 +164,12 @@ class ErrorHandler
         if ($err) {
             return $this->handle(
                 $err['type'],
-                self::errorType($err['type']),
                 $err['message'],
                 $err['file'],
                 $err['line'],
-                $this->getErrorExtra()
+                $this->getErrorExtra(array(
+                    'displayType' => self::errorType($err['type'])
+                ))
             );
         }
     }
