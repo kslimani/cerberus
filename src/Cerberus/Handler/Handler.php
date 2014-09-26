@@ -77,5 +77,4 @@ abstract class Handler implements HandlerInterface
             return array();
         }
     }
-
 }

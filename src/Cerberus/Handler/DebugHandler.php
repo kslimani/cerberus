@@ -8,7 +8,7 @@ namespace Cerberus\Handler;
 
 class DebugHandler extends Handler
 {
-    protected $version = '0.1.1 beta';
+    protected $version = '0.1.2 beta';
     protected $charset = 'utf-8';
     protected $maxArgDisplaySize = 4096;
 
@@ -45,7 +45,7 @@ class DebugHandler extends Handler
             htmlentities($handler->emptyOutputBuffers(), ENT_COMPAT, $this->getCharset())
         );
 
-        return $this->sendResponse(
+        return $this->sendResponseAndExit(
             $this->renderTemplate($template, array(
                 'charset' => $this->getCharset(),
                 'version' => $this->getVersion(),
@@ -79,7 +79,7 @@ class DebugHandler extends Handler
         $this->maxArgDisplaySize = $maxArgDisplaySize;
     }
 
-    private function renderTemplate($file, $values = array())
+    protected function renderTemplate($file, $values = array())
     {
         $template = file_get_contents($file);
         if (false === $template) {
@@ -92,7 +92,7 @@ class DebugHandler extends Handler
         return $template;
     }
 
-    private function formatMemory($memory)
+    protected function formatMemory($memory)
     {
         $units = array('bytes','kilobytes','megabytes','gigabytes','terabytes','petabytes');
         $unit = floor(log($memory, 1024));
@@ -100,43 +100,62 @@ class DebugHandler extends Handler
         return round($memory / pow(1024, $unit), 2).' '.$units[$unit];
     }
 
-    private function traceToHtml($trace)
+    protected function formatTrace(array $trace, $functionFmt="%s()", $fileFmt=" in %s", $lineFmt=" line %s", $includeArgs=true)
     {
-        $html = "";
-        $count = count($trace);
-        for ($i = 0 ; $i < $count ; $i++) {
-            $stack = &$trace[$i];
+        $formatedTrace = array();
+
+        if (empty($trace)) {
+            return $formatedTrace;
+        }
+
+        foreach ($trace as &$stack) {
             if (isset($stack['file']) && ($stack['file'] === __FILE__)) {
                 continue;
             }
-            $msg = "";
+            $message = "";
             if (isset($stack['class'])) {
-                $msg .= $stack['class'];
+                $message .= $stack['class'];
             }
             if (isset($stack['type'])) {
-                $msg .= $stack['type'];
+                $message .= $stack['type'];
             }
             if (isset($stack['function'])) {
-                $msg .= "{$stack['function']}()";
+                $message .= sprintf($functionFmt, $stack['function']);
             }
-            if (0 === strpos($msg, 'Cerberus\\')) {
+            if (0 === strpos($message, 'Cerberus\\')) {
                 continue;
             }
             if (isset($stack['file'])) {
-                $msg .= " in {$stack['file']}";
+                $message .= sprintf($fileFmt, $stack['file']);
             }
             if (isset($stack['line'])) {
-                $msg .= " line {$stack['line']}";
+                $message .= sprintf($lineFmt, $stack['line']);
             }
-            if (empty($msg) === true) {
+            if (empty($message)) {
                 continue;
             }
-            if (isset($stack['args']) && is_array($stack['args']) && (count($stack['args']) > 0)) {
-                $args = $this->argsToHtml($stack['args']);
-                $html .= "<li><h3>at $msg</h3><ul><li>$args</li></ul></li>\n";
-                continue;
+            $formatedTrace[] = array(
+                'message' => $message,
+                'args' => ($includeArgs && isset($stack['args']) && !empty($stack['args'])) ? $stack['args'] : null
+            );
+        }
+
+        return $formatedTrace;
+    }
+
+    protected function traceToHtml($trace)
+    {
+        $html = "";
+        foreach ($this->formatTrace($trace) as &$error) {
+            if (empty($error['args'])) {
+                $html .= sprintf("<li>at %s</li>\n", $error['message']);
+            } else {
+                $html .= sprintf(
+                    "<li><h3>at %s</h3><ul><li>%s</li></ul></li>\n",
+                    $error['message'],
+                    $this->argsToHtml($error['args'])
+                );
             }
-            $html .= "<li>at $msg</li>\n";
         }
         if (empty($html) === true) {
             return "<li>Backtrace not available</li>\n";
@@ -145,7 +164,7 @@ class DebugHandler extends Handler
         return $html;
     }
 
-    private function argsToHtml($args)
+    protected function argsToHtml($args)
     {
         $html = "<table>";
         $count = count($args);
@@ -181,7 +200,7 @@ class DebugHandler extends Handler
         return "$html</table>";
     }
 
-    private function printReadable($array, $return = false, $depth = 0)
+    protected function printReadable($array, $return = false, $depth = 0)
     {
         $items = array();
         $html = "";
@@ -237,7 +256,7 @@ class DebugHandler extends Handler
         echo $html;
     }
 
-    private function displayImpersonalErrorPage()
+    protected function displayImpersonalErrorPage()
     {
         $this->getErrorHandler()->emptyOutputBuffers();
         $content = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n";
@@ -248,10 +267,10 @@ class DebugHandler extends Handler
         $content .= "<p>The server encountered an internal error and was unable to complete your request.</p>\n";
         $content .= "</body></html>";
 
-        return $this->sendResponse($content);
+        return $this->sendResponseAndExit($content);
     }
 
-    private function sendErrorHeader()
+    protected function sendErrorHeader()
     {
         if (headers_sent() || !isset($_SERVER["REQUEST_URI"])) {
             return;
@@ -263,13 +282,10 @@ class DebugHandler extends Handler
         }
     }
 
-    private function sendResponse($content)
+    protected function sendResponseAndExit($content)
     {
         $this->sendErrorHeader();
         echo $content;
         exit(1);
-
-        return true;
     }
-
 }
