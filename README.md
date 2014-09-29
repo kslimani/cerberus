@@ -73,7 +73,7 @@ $errorHandler->addHandler(function($message, $extra) {
 Details array content differ according to error type.
 
 Error :
-```json
+```
 
 [
     'displayType' : 'The error display type',
@@ -89,7 +89,7 @@ Error :
 ```
 
 Exception :
-```json
+```
 
 [
     'displayType' : 'The error display type',
