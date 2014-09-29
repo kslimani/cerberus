@@ -38,10 +38,10 @@ class ErrorHandler
         $this->register();
     }
 
-    private function register()
+    protected function register()
     {
-        set_error_handler(array($this, 'onError'));
-        set_exception_handler(array($this, 'onException'));
+        $this->previousErrorHandler = set_error_handler(array($this, 'onError'));
+        $this->previousExceptionHandler = set_exception_handler(array($this, 'onException'));
         register_shutdown_function(array($this, 'onShutdown'));
         $this->registered = true;
     }
@@ -154,6 +154,7 @@ class ErrorHandler
 
     public function onShutdown()
     {
+        // Shutdown callbacks can't be unregistered
         if (!$this->registered) {
             return;
         }
@@ -174,7 +175,7 @@ class ErrorHandler
         }
     }
 
-    private function getErrorExtra($extra = array())
+    protected function getErrorExtra($extra = array())
     {
         if ($this->getDebug()) {
             $extra['memory'] = memory_get_peak_usage(false);
@@ -189,7 +190,7 @@ class ErrorHandler
         return $extra;
     }
 
-    private function handle($type, $displayType, $message, $file, $line, $extra = array())
+    protected function handle($type, $displayType, $message, $file, $line, $extra = array())
     {
         if ($this->disabled) {
             return false;
@@ -220,7 +221,7 @@ class ErrorHandler
         );
     }
 
-    private static function errorType($type)
+    protected static function errorType($type)
     {
         switch ($type) {
             case E_ERROR:

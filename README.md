@@ -68,6 +68,40 @@ $errorHandler->addHandler(function($message, $extra) {
 
 ```
 
+## Error/exception details
+
+Details array content differ according to error type.
+
+Error :
+```json
+
+[
+    'displayType' : 'The error display type',
+    'context'     : 'The application context',
+    'memory'      : 'The memory peak usage, ONLY if debug is true',
+    'trace'       : 'The error backtrace, ONLY if debug is true',
+    'type'        : 'The error type, ONLY in CallableHandler',
+    'message'     : 'The error message, ONLY in CallableHandler',
+    'file'        : 'The error file, ONLY in CallableHandler',
+    'line'        : 'The error line, ONLY in CallableHandler',
+]
+
+```
+
+Exception :
+```json
+
+[
+    'displayType' : 'The error display type',
+    'exception'   : 'The exception object',
+    'memory'      : 'The memory peak usage, ONLY if debug is true',
+    'code'        : 'The http status code, ONLY if instance of HttpExceptionInterface',
+]
+
+```
+
+Note : `HttpExceptionInterface` refer to `Symfony\Component\HttpKernel\Exception\HttpExceptionInterface`.
+
 ## Error handler priority
 
 Error handlers are ordered by priority (from higher to lower values).
@@ -133,9 +167,6 @@ $app->register(new TwigServiceProvider());
 // Register simple error pages service
 
 $app['error.response'] = $app->protect(function ($code) use ($app) {
-
-    $app['cerberus']->emptyOutputBuffers();
-
     if ($app->offsetExists('twig')) {
 
         // 404.html, or 40x.html, or 4xx.html, or default.html
@@ -148,12 +179,11 @@ $app['error.response'] = $app->protect(function ($code) use ($app) {
 
         return new Response($app['twig']->resolveTemplate($templates)->render(array('code' => $code)), $code);
     } else {
-
-        return new Response("<h1>500 Internal Server Error</h1>", $code);
+        return new Response(sprintf("<h1>HTTP Error %s</h1>", $code), $code);
     }
 });
 
-// Register critical error handler
+// Register fatal error handler
 
 $app['cerberus']->addHandler(function($message, $extra) use ($app) {
 
@@ -161,6 +191,7 @@ $app['cerberus']->addHandler(function($message, $extra) use ($app) {
         return;
     }
 
+    $app['cerberus']->emptyOutputBuffers();
     $response = $app['error.response'](500);
 
     if ($response instanceof Response) {
