@@ -37,19 +37,6 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->eh->getThrowNonFatal());
     }
 
-    public function testBadHandler()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-        $this->eh->addHandler('BAD.HANDLER');
-    }
-
-    public function testBadErrorHandler()
-    {
-        $handler = new MockHandler();
-        $this->setExpectedException('InvalidArgumentException');
-        $handler->setErrorHandler('BAD.ERROR_HANDLER');
-    }
-
     public function testNoHandler()
     {
         $handler = new MockHandler();

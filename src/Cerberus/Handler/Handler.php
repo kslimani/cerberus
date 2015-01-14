@@ -15,11 +15,6 @@ abstract class Handler implements HandlerInterface
 
     public function setErrorHandler(ErrorHandler $errorHandler)
     {
-        if (!$errorHandler instanceof ErrorHandler) {
-            throw new \InvalidArgumentException(
-                "Argument to ".__METHOD__." must be an instance of Cerberus\\ErrorHandler"
-            );
-        }
         $this->errorHandler = $errorHandler;
     }
 
