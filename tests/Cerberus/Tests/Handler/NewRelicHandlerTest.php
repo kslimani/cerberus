@@ -86,6 +86,18 @@ class NewRelicHandlerTest extends HandlerTestCase
         $this->assertEquals("MockedTransactionName", self::$transactionName);
     }
 
+    public function testHttpExceptionInterfaceFilterLevel()
+    {
+        $handler = new NewRelicHandlerWithExtension();
+
+        $this->assertEquals(500, $handler->getHttpExceptionInterfaceFilterLevel());
+
+        $handler->setHttpExceptionInterfaceFilterLevel(404);
+        $this->assertEquals(404, $handler->getHttpExceptionInterfaceFilterLevel());
+
+        // TODO: test http exception filtering ?
+    }
+
     public function testIgnoreNonFatalErrors()
     {
         $handler = new NewRelicHandlerWithExtension();

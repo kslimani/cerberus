@@ -8,13 +8,16 @@ namespace Cerberus\Handler;
 
 class NewRelicHandler extends Handler
 {
-    public function __construct($handleNonFatal = false, $appName = null, $callNextHandler = true)
+    protected $httpExceptionCodeLevel = 500;
+
+    public function __construct($handleNonFatal = false, $appName = null, $priority = 95, $callNextHandler = true)
     {
         if (!$this->isNewRelicExtensionLoaded()) {
             throw new \Exception('The newrelic PHP extension is required to use the NewRelicHandler');
         }
 
         $this->setHandleNonFatal($handleNonFatal);
+        $this->setPriority($priority);
 
         if (!is_null($appName)) {
             $this->setAppName($appName);
@@ -28,6 +31,11 @@ class NewRelicHandler extends Handler
     public function handle($type, $message, $file, $line, $extra)
     {
         if ($this->canIgnoreError($type)) {
+            return;
+        }
+
+        // Symfony HttpExceptionInterface status code filtering
+        if (isset($extra['code']) && $extra['code'] < $this->httpExceptionCodeLevel) {
             return;
         }
 
@@ -57,6 +65,16 @@ class NewRelicHandler extends Handler
     public function setTransactionName($name)
     {
         newrelic_name_transaction($name);
+    }
+
+    public function setHttpExceptionInterfaceFilterLevel($statusCode)
+    {
+        $this->httpExceptionCodeLevel = (int) $statusCode;
+    }
+
+    public function getHttpExceptionInterfaceFilterLevel()
+    {
+        return $this->httpExceptionCodeLevel;
     }
 
     public function isNewRelicExtensionLoaded()
