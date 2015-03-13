@@ -16,13 +16,16 @@ class LoggerHandler extends Handler
     protected $errorLogLevels;
     protected $exceptionLogLevel;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, $priority = 100, $handleNonFatal = true, $callNextHandler = true)
     {
-        $this->setPriority(100);
-        $this->setHandleNonFatal(true);
         $this->logger = $logger;
         $this->errorLogLevels = $this->defaultErrorLogLevels();
         $this->exceptionLogLevel = LogLevel::CRITICAL;
+        $this->setPriority($priority);
+        $this->setHandleNonFatal($handleNonFatal);
+        if (!$callNextHandler) {
+            $this->setCallNextHandler(false);
+        }
     }
 
     public function handle($type, $message, $file, $line, $extra)
@@ -33,7 +36,7 @@ class LoggerHandler extends Handler
             $extra
         );
 
-        return false;
+        return (!$this->getCallNextHandler());
     }
 
     public function setErrorLogLevels($errorLogLevels = array())

@@ -32,6 +32,13 @@ class LoggerHandlerTest extends HandlerTestCase
         return $line;
     }
 
+    public function testHandlerSetter()
+    {
+        $this->assertTrue($this->loggerHandler->getCallNextHandler());
+        $this->loggerHandler->setCallNextHandler(false);
+        $this->assertNotTrue($this->loggerHandler->getCallNextHandler());
+    }
+
     public function testHandleError()
     {
         $error = $this->createError('E_NOTICE', E_NOTICE, 'Error Message', 'file.php', 5);

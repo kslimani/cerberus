@@ -143,6 +143,8 @@ $errorHandler
     ->setDebug($debug)
     ->setThrowExceptions(false)
     ->setThrowNonFatal(false)
+    ->setCallPreviousErrorHandler(false)
+    ->setCallPreviousExceptionHandler(false)
 ;
 if ($debug) {
     $errorHandler->addHandler(new DebugHandler(false));

@@ -22,11 +22,13 @@ class ErrorHandler
     protected $debug;
     protected $throwExceptions;
     protected $throwNonFatal;
-    protected $previousErrorHandler;
-    protected $previousExceptionHandler;
+    public $previousErrorHandler;
+    public $previousExceptionHandler;
     protected $registered;
+    protected $callPreviousErrorHandler;
+    protected $callPreviousExceptionHandler;
 
-    public function __construct($debug = true, $throwExceptions = false, $throwNonFatal = false, $error_types = null)
+    public function __construct($debug = true, $throwExceptions = false, $throwNonFatal = false, $callPreviousHandlers = false, $error_types = null)
     {
         ini_set('display_errors', 0);
         $this->reservedMemory = str_repeat('0', 20480);
@@ -35,6 +37,8 @@ class ErrorHandler
         $this->setDebug($debug);
         $this->setThrowExceptions($throwExceptions);
         $this->setThrowNonFatal($throwNonFatal);
+        $this->setCallPreviousErrorHandler($callPreviousHandlers);
+        $this->setCallPreviousExceptionHandler($callPreviousHandlers);
         $this->register($error_types);
     }
 
@@ -54,6 +58,8 @@ class ErrorHandler
     {
         set_error_handler($this->previousErrorHandler);
         set_exception_handler($this->previousExceptionHandler);
+        $this->previousErrorHandler = null;
+        $this->previousExceptionHandler = null;
         $this->registered = false;
     }
 
@@ -103,6 +109,30 @@ class ErrorHandler
         return $this->throwNonFatal;
     }
 
+    public function setCallPreviousErrorHandler($callPreviousErrorHandler)
+    {
+        $this->callPreviousErrorHandler = $callPreviousErrorHandler;
+
+        return $this;
+    }
+
+    public function getCallPreviousErrorHandler()
+    {
+        return $this->callPreviousErrorHandler;
+    }
+
+    public function setCallPreviousExceptionHandler($callPreviousExceptionHandler)
+    {
+        $this->callPreviousExceptionHandler = $callPreviousExceptionHandler;
+
+        return $this;
+    }
+
+    public function getCallPreviousExceptionHandler()
+    {
+        return $this->callPreviousExceptionHandler;
+    }
+
     public function addHandler($handler, $handleNonFatal = false)
     {
         if (is_callable($handler)) {
@@ -124,7 +154,7 @@ class ErrorHandler
             }
         }
 
-        return $this->handle(
+        $res = $this->handle(
             $type,
             $message,
             $file,
@@ -134,6 +164,14 @@ class ErrorHandler
                 'context' => $context
             ))
         );
+
+        if ($res === true) {
+            return true;
+        } elseif ($this->callPreviousErrorHandler && is_callable($this->previousErrorHandler)) {
+            return call_user_func($this->previousErrorHandler, $type, $message, $file, $line, $context);
+        } else {
+            return $res;
+        }
     }
 
     public function onException(\Exception $e)
@@ -144,7 +182,7 @@ class ErrorHandler
             $displayType = get_class($e);
         }
 
-        return $this->handle(
+        $res = $this->handle(
             self::E_EXCEPTION,
             $e->getMessage(),
             $e->getFile(),
@@ -154,6 +192,14 @@ class ErrorHandler
                 'exception' => $e
             ))
         );
+
+        if ($res === true) {
+            return true;
+        } elseif ($this->callPreviousExceptionHandler && is_callable($this->previousExceptionHandler)) {
+            return call_user_func($this->previousExceptionHandler, $e);
+        } else {
+            return $res;
+        }
     }
 
     public function onShutdown()
@@ -206,8 +252,7 @@ class ErrorHandler
             }
         }
 
-        // TODO : restore previous handler and return false ?
-        return true;
+        return false;
     }
 
     public function isFatal($type)

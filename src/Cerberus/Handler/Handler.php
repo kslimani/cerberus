@@ -12,14 +12,10 @@ abstract class Handler implements HandlerInterface
     private $errorHandler;
     private $priority = -1;
     private $handleNonFatal = false;
+    private $callNextHandler = true;
 
     public function setErrorHandler(ErrorHandler $errorHandler)
     {
-        if (!$errorHandler instanceof ErrorHandler) {
-            throw new \InvalidArgumentException(
-                "Argument to ".__METHOD__." must be an instance of Cerberus\\ErrorHandler"
-            );
-        }
         $this->errorHandler = $errorHandler;
     }
 
@@ -46,6 +42,16 @@ abstract class Handler implements HandlerInterface
     public function getHandleNonFatal()
     {
         return $this->handleNonFatal;
+    }
+
+    public function setCallNextHandler($bool)
+    {
+        $this->callNextHandler = ($bool === true);
+    }
+
+    public function getCallNextHandler()
+    {
+        return $this->callNextHandler;
     }
 
     public function canIgnoreError($type)
