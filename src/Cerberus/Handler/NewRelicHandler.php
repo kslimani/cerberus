@@ -32,10 +32,19 @@ class NewRelicHandler extends Handler
             return;
         }
 
+        // Format message for better readability in NewRelic dashboard
+        $formattedMessage = sprintf(
+            '%s: %s in %s line %s',
+            $this->getDisplayName($extra),
+            $message,
+            $file,
+            $line
+        );
+
         if (isset($extra['exception'])) {
-            newrelic_notice_error($message, $extra['exception']);
+            newrelic_notice_error($formattedMessage, $extra['exception']);
         } else {
-            newrelic_notice_error($message);
+            newrelic_notice_error($formattedMessage);
         }
 
         return (!$this->getCallNextHandler());

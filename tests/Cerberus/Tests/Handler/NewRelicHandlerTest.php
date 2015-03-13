@@ -28,6 +28,17 @@ class NewRelicHandlerTest extends HandlerTestCase
         parent::SetUp();
     }
 
+    protected function formatErrorMessage($error)
+    {
+        return sprintf(
+            '%s: %s in %s line %s',
+            $error->getDisplayType(),
+            $error->getMessage(),
+            $error->getFile(),
+            $error->getLine()
+        );
+    }
+
     public function testError()
     {
         $handler = new NewRelicHandlerWithExtension();
@@ -36,7 +47,7 @@ class NewRelicHandlerTest extends HandlerTestCase
         $error = $this->createError('E_ERROR', E_ERROR, 'Error Message', 'file.php', 5);
         $this->handleError($error);
 
-        $this->assertEquals($error->getMessage(), self::$message);
+        $this->assertEquals($this->formatErrorMessage($error), self::$message);
         $this->assertNull(self::$exception);
     }
 
@@ -53,8 +64,6 @@ class NewRelicHandlerTest extends HandlerTestCase
         $this->assertEquals($exception->getCode(), self::$exception->getCode());
         $this->assertEquals($exception->getFile(), self::$exception->getFile());
         $this->assertEquals($exception->getLine(), self::$exception->getLine());
-
-        $this->assertEquals($exception->getMessage(), self::$message);
     }
 
     public function testAppName()
@@ -97,7 +106,7 @@ class NewRelicHandlerTest extends HandlerTestCase
         $error = $this->createError('E_NOTICE', E_NOTICE, 'Error Message', 'file.php', 5);
         $this->handleError($error);
 
-        $this->assertEquals($error->getMessage(), self::$message);
+        $this->assertEquals($this->formatErrorMessage($error), self::$message);
         $this->assertNull(self::$exception);
     }
 }
