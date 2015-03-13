@@ -16,12 +16,6 @@ class HandlerList extends \SplDoublyLinkedList
 
     public function __construct(ErrorHandler $errorHandler, $defaultPriority = 10)
     {
-        if (!$errorHandler instanceof ErrorHandler) {
-            throw new \InvalidArgumentException(
-                "Argument to ".__METHOD__." must be an instance of Cerberus\\ErrorHandler"
-            );
-        }
-
         $this->errorHandler = $errorHandler;
         $this->priority = $defaultPriority;
         $this->heap = new HandlerHeap();
@@ -30,12 +24,6 @@ class HandlerList extends \SplDoublyLinkedList
 
     public function addHandler(HandlerInterface $handler)
     {
-        if (!$handler instanceof HandlerInterface) {
-            throw new \InvalidArgumentException(
-                "Argument to ".__METHOD__." must be an instance of Cerberus\\Handler\\HandlerInterface"
-            );
-        }
-
         $handler->setErrorHandler($this->errorHandler);
         if (-1 === $handler->getPriority()) {
             $handler->setPriority($this->priority);

@@ -8,7 +8,7 @@ namespace Cerberus\Handler;
 
 class DebugHandler extends Handler
 {
-    protected $version = '0.1.2 beta';
+    protected $version = '0.1.5 beta';
     protected $charset = 'utf-8';
     protected $maxArgDisplaySize = 4096;
 
@@ -45,6 +45,7 @@ class DebugHandler extends Handler
             htmlentities($handler->emptyOutputBuffers(), ENT_COMPAT, $this->getCharset())
         );
 
+        // Note this method call exit(1) and therefore return nothing
         return $this->sendResponseAndExit(
             $this->renderTemplate($template, array(
                 'charset' => $this->getCharset(),

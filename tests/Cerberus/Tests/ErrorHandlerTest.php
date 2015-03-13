@@ -14,46 +14,53 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
         $this->eh = new ErrorHandler();
     }
 
+    public function tearDown()
+    {
+        $this->eh->unRegister();
+        unset($this->eh);
+    }
+
     public function testCustomConstructor()
     {
-        $customErrorHandler = new ErrorHandler(false, true, true);
+        $customErrorHandler = new ErrorHandler(false, true, true, false);
         $this->assertNotTrue($customErrorHandler->getDebug());
         $this->assertTrue($customErrorHandler->getThrowExceptions());
         $this->assertTrue($customErrorHandler->getThrowNonFatal());
+        $this->assertNotTrue($customErrorHandler->getCallPreviousErrorHandler());
+        $this->assertNotTrue($customErrorHandler->getCallPreviousExceptionHandler());
     }
 
     public function testDefaultConstructor()
     {
-        $this->assertTrue($this->eh->getDebug());
-        $this->assertNotTrue($this->eh->getThrowExceptions());
-        $this->assertNotTrue($this->eh->getThrowNonFatal());
+        $defaultErrorHandler = new ErrorHandler();
+        $this->assertTrue($defaultErrorHandler->getDebug());
+        $this->assertNotTrue($defaultErrorHandler->getThrowExceptions());
+        $this->assertNotTrue($defaultErrorHandler->getThrowNonFatal());
+        $this->assertNotTrue($defaultErrorHandler->getCallPreviousErrorHandler());
+        $this->assertNotTrue($defaultErrorHandler->getCallPreviousExceptionHandler());
     }
 
     public function testSetters()
     {
-        $this->eh->setDebug(false)->setThrowExceptions(true)->setThrowNonFatal(true);
+        $this
+            ->eh
+            ->setDebug(false)
+            ->setThrowExceptions(true)
+            ->setThrowNonFatal(true)
+            ->setCallPreviousErrorHandler(true)
+            ->setCallPreviousExceptionHandler(true)
+        ;
         $this->assertNotTrue($this->eh->getDebug());
         $this->assertTrue($this->eh->getThrowExceptions());
         $this->assertTrue($this->eh->getThrowNonFatal());
+        $this->assertTrue($this->eh->getCallPreviousErrorHandler());
+        $this->assertTrue($this->eh->getCallPreviousExceptionHandler());
     }
 
-    public function testBadHandler()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-        $this->eh->addHandler('BAD.HANDLER');
-    }
-
-    public function testBadErrorHandler()
+    public function testHandlerWithNoErrorHandler()
     {
         $handler = new MockHandler();
-        $this->setExpectedException('InvalidArgumentException');
-        $handler->setErrorHandler('BAD.ERROR_HANDLER');
-    }
-
-    public function testNoHandler()
-    {
-        $handler = new MockHandler();
-        $this->setExpectedException('Exception');
+        $this->setExpectedException('Exception', 'Error handler must be set');
         $handler->canIgnoreError(0);
     }
 
@@ -67,6 +74,7 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
 
         // Ensure extra debug data exists in default debug mode
         $this->eh->onError(E_ERROR, 'Error message', 'file.php', 1337);
+
         $lastError = $handler->getLastHandledError();
         $this->assertArrayHasKey('extra', $lastError);
         $extra = $lastError['extra'];
