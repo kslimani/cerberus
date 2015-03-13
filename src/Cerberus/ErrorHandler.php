@@ -26,7 +26,7 @@ class ErrorHandler
     protected $previousExceptionHandler;
     protected $registered;
 
-    public function __construct($debug = true, $throwExceptions = false, $throwNonFatal = false)
+    public function __construct($debug = true, $throwExceptions = false, $throwNonFatal = false, $error_types = null)
     {
         ini_set('display_errors', 0);
         $this->reservedMemory = str_repeat('0', 20480);
@@ -35,12 +35,16 @@ class ErrorHandler
         $this->setDebug($debug);
         $this->setThrowExceptions($throwExceptions);
         $this->setThrowNonFatal($throwNonFatal);
-        $this->register();
+        $this->register($error_types);
     }
 
-    protected function register()
+    protected function register($error_types)
     {
-        $this->previousErrorHandler = set_error_handler(array($this, 'onError'));
+        if (is_int($error_types)) {
+            $this->previousErrorHandler = set_error_handler(array($this, 'onError'), $error_types);
+        } else {
+            $this->previousErrorHandler = set_error_handler(array($this, 'onError'));
+        }
         $this->previousExceptionHandler = set_exception_handler(array($this, 'onException'));
         register_shutdown_function(array($this, 'onShutdown'));
         $this->registered = true;
