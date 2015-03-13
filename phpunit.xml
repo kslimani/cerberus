@@ -3,6 +3,7 @@
     backupGlobals="false"
     colors="true"
     bootstrap="tests/bootstrap.php"
+    processIsolation="true"
 >
     <testsuites>
         <testsuite name="TestSuite">
