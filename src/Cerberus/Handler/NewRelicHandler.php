@@ -8,14 +8,13 @@ namespace Cerberus\Handler;
 
 class NewRelicHandler extends Handler
 {
-    public function __construct($handleNonFatal = false, $appName = null, $priority = 95, $callNextHandler = true)
+    public function __construct($handleNonFatal = false, $appName = null, $callNextHandler = true)
     {
         if (!$this->isNewRelicExtensionLoaded()) {
             throw new \Exception('The newrelic PHP extension is required to use the NewRelicHandler');
         }
 
         $this->setHandleNonFatal($handleNonFatal);
-        $this->setPriority($priority);
 
         if (!is_null($appName)) {
             $this->setAppName($appName);
