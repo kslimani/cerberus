@@ -4,7 +4,6 @@ namespace Cerberus\Tests;
 
 use Cerberus\ErrorHandler;
 use Cerberus\Tests\Fixtures\MockError;
-use Cerberus\Tests\Fixtures\MockException;
 
 abstract class HandlerTestCase extends \PHPUnit_Framework_TestCase
 {
@@ -22,7 +21,7 @@ abstract class HandlerTestCase extends \PHPUnit_Framework_TestCase
         return new MockError($displayType, $type, $message, $file, $line, $context);
     }
 
-    protected function createException(MockException $exception)
+    protected function createException(\Exception $exception)
     {
         try {
             throw $exception;

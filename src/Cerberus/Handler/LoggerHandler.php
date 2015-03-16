@@ -14,13 +14,14 @@ class LoggerHandler extends Handler
 {
     protected $logger;
     protected $errorLogLevels;
-    protected $exceptionLogLevel;
+    protected $criticalHttpExceptionLogLevel = LogLevel::CRITICAL;
+    protected $nonCriticalHttpExceptionLogLevel = LogLevel::WARNING;
+    protected $httpExceptionCodeLevel = 500;
 
     public function __construct(LoggerInterface $logger, $priority = 100, $handleNonFatal = true, $callNextHandler = true)
     {
         $this->logger = $logger;
         $this->errorLogLevels = $this->defaultErrorLogLevels();
-        $this->exceptionLogLevel = LogLevel::CRITICAL;
         $this->setPriority($priority);
         $this->setHandleNonFatal($handleNonFatal);
         if (!$callNextHandler) {
@@ -39,14 +40,29 @@ class LoggerHandler extends Handler
         return (!$this->getCallNextHandler());
     }
 
+    public function setHttpExceptionInterfaceFilterLevel($statusCode)
+    {
+        $this->httpExceptionCodeLevel = (int) $statusCode;
+    }
+
+    public function getHttpExceptionInterfaceFilterLevel()
+    {
+        return $this->httpExceptionCodeLevel;
+    }
+
     public function setErrorLogLevels($errorLogLevels = array())
     {
         $this->errorLogLevels = array_replace($this->defaultErrorLogLevels(), $errorLogLevels);
     }
 
-    public function setExceptionLogLevel($exceptionLogLevel)
+    public function setCriticalHttpExceptionLogLevel($criticalHttpExceptionLogLevel)
     {
-        $this->exceptionLogLevel = $exceptionLogLevel;
+        $this->criticalHttpExceptionLogLevel = $criticalHttpExceptionLogLevel;
+    }
+
+    public function setNonCriticalHttpExceptionLogLevel($nonCriticalHttpExceptionLogLevel)
+    {
+        $this->nonCriticalHttpExceptionLogLevel = $nonCriticalHttpExceptionLogLevel;
     }
 
     private function defaultErrorLogLevels()
@@ -73,14 +89,15 @@ class LoggerHandler extends Handler
     private function exceptionLogLevel($exception)
     {
         if ($exception instanceof HttpExceptionInterface) {
-            if ($exception->getStatusCode() < 500) {
-                return LogLevel::WARNING;
+            // Symfony HttpExceptionInterface status code filtering
+            if ($exception->getStatusCode() < $this->httpExceptionCodeLevel) {
+                return $this->nonCriticalHttpExceptionLogLevel;
             }
         } elseif ($exception instanceof \ErrorException) {
             return $this->errorLogLevel($exception->getSeverity());
         }
 
-        return $this->exceptionLogLevel;
+        return $this->criticalHttpExceptionLogLevel;
     }
 
     private function errorLogLevel($type)

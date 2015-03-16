@@ -112,6 +112,7 @@ Priority can be changed with `setPriority()` method and must be set BEFORE addin
 
 * `DebugHandler` default priority value is `0` (last handler)
 * `LoggerHandler` default priority value is `100` (first handler)
+* `NewRelicHandler` default priority value is `95` (after LoggerHandler)
 
 ## Silex integration example
 
@@ -196,18 +197,14 @@ $app['cerberus']->addHandler(function($message, $extra) use ($app) {
     $app['cerberus']->emptyOutputBuffers();
     $response = $app['error.response'](500);
 
-    if ($response instanceof Response) {
-        $response->send();
-    }
-
-    return true;
+    return $response->send();
 });
 
 // Register application exception handler
 
 $app->error(function (\Exception $e, $code) use ($app) {
 
-    if (($code !== 404) && $app['debug']) {
+    if (($code >= 500) && $app['debug']) {
         return;
     }
 
