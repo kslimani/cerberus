@@ -4,6 +4,7 @@ namespace Cerberus\Tests\Handler;
 
 use Cerberus\Tests\HandlerTestCase;
 use Cerberus\Tests\Fixtures\MockException;
+use Cerberus\Tests\Fixtures\MockHttpException;
 use Cerberus\Tests\Fixtures\MockLogger;
 use Cerberus\Handler\LoggerHandler;
 use Psr\Log\LogLevel;
@@ -30,6 +31,17 @@ class LoggerHandlerTest extends HandlerTestCase
         $this->assertArrayHasKey('context', $line);
 
         return $line;
+    }
+
+    protected function formatedExceptionMessage(\Exception $exception)
+    {
+        return sprintf(
+            '%s: %s in %s line %s',
+            $exception->getDisplayType(),
+            $exception->getMessage(),
+            $exception->getFile(),
+            $exception->GetLine()
+        );
     }
 
     public function testHandlerSetter()
@@ -91,23 +103,62 @@ class LoggerHandlerTest extends HandlerTestCase
     {
         $exception = $this->createException(new MockException("Exception message"));
         $this->handleException($exception);
-        $expectedMessage = sprintf(
-            '%s: %s in %s line %s',
-            $exception->getDisplayType(),
-            $exception->getMessage(),
-            $exception->getFile(),
-            $exception->GetLine()
-        );
 
         $line = $this->assertLine(1);
         $this->assertEquals(LogLevel::CRITICAL, $line['level']);
-        $this->assertEquals($expectedMessage, $line['message']);
+        $this->assertEquals($this->formatedExceptionMessage($exception), $line['message']);
+    }
 
-        // Test custom exception log level feature
-        $this->loggerHandler->setExceptionLogLevel(LogLevel::ALERT);
+    public function testHandleHttpException()
+    {
+        // Non-critical HTTP exception
+        $exception = $this->createException(new MockHttpException(404, "Not found message"));
+        $this->handleException($exception);
+
+        $line = $this->assertLine(1);
+        $this->assertEquals(LogLevel::WARNING, $line['level']);
+        $this->assertEquals($this->formatedExceptionMessage($exception), $line['message']);
+
+        // Critical HTTP exception
+        $exception = $this->createException(new MockHttpException(500, "Critical message"));
         $this->handleException($exception);
 
         $line = $this->assertLine(2);
+        $this->assertEquals(LogLevel::CRITICAL, $line['level']);
+        $this->assertEquals($this->formatedExceptionMessage($exception), $line['message']);
+
+        // Non-critical HTTP exception with custom log level
+        $exception = $this->createException(new MockHttpException(404, "Not found message"));
+        $this->loggerHandler->setNonCriticalHttpExceptionLogLevel(LogLevel::NOTICE);
+        $this->handleException($exception);
+
+        $line = $this->assertLine(3);
+        $this->assertEquals(LogLevel::NOTICE, $line['level']);
+        $this->assertEquals($this->formatedExceptionMessage($exception), $line['message']);
+
+        // Critical HTTP exception with custom log level
+        $exception = $this->createException(new MockHttpException(500, "Critical message"));
+        $this->loggerHandler->setCriticalHttpExceptionLogLevel(LogLevel::ALERT);
+        $this->handleException($exception);
+
+        $line = $this->assertLine(4);
         $this->assertEquals(LogLevel::ALERT, $line['level']);
+        $this->assertEquals($this->formatedExceptionMessage($exception), $line['message']);
     }
+
+    public function testHandleHttpExceptionFilterLevel()
+    {
+        // Default HttpExceptionInterface filter level value is 500
+        $this->assertEquals(500, $this->loggerHandler->getHttpExceptionInterfaceFilterLevel());
+
+        $this->loggerHandler->setHttpExceptionInterfaceFilterLevel(400);
+        $exception = $this->createException(new MockHttpException(404, "Not found message"));
+        $this->handleException($exception);
+
+        $line = $this->assertLine(1);
+        $this->assertEquals(LogLevel::CRITICAL, $line['level']);
+        $this->assertEquals($this->formatedExceptionMessage($exception), $line['message']);
+        $this->assertEquals(400, $this->loggerHandler->getHttpExceptionInterfaceFilterLevel());
+    }
+
 }
