@@ -11,12 +11,6 @@ Add in `composer.json` file :
     "require": {
         "kslimani/cerberus": "~0.1.0"
     },
-    "repositories": [
-      {
-        "type": "vcs",
-        "url": "https://github.com/kslimani/cerberus.git"
-      }
-    ]
 }
 ```
 
