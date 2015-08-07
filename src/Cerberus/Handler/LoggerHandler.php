@@ -31,6 +31,15 @@ class LoggerHandler extends Handler
 
     public function handle($type, $message, $file, $line, $extra)
     {
+        if (!isset($extra['exception'])) {
+            $extra += array(
+                'file' => $file,
+                'line' => $line,
+                'message' => $message,
+                'type' => $type
+            );
+        }
+
         $this->logger->log(
             isset($extra['exception']) ? $this->exceptionLogLevel($extra['exception']) : $this->errorLogLevel($type),
             sprintf('%s: %s in %s line %s', $this->getDisplayName($extra), $message, $file, $line),
