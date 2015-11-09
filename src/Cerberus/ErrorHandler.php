@@ -173,7 +173,7 @@ class ErrorHandler
         }
     }
 
-    public function onException(\Exception $e)
+    public function onException($e)
     {
         if ($e instanceof \ErrorException) {
             $displayType = sprintf('%s (%s)', get_class($e), self::errorType($e->getSeverity()));
