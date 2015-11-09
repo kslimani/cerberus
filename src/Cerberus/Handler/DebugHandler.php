@@ -37,9 +37,9 @@ class DebugHandler extends Handler
 
         // TODO: rewrite legacy html formatters from scratch & add mode debug informations
         $content = sprintf(
-            "<li><h2>%s</h2><ul><li>Memory used : %s</li>%s</ul></li>".
-            "<li><h2>Output Buffer</h2><ul><li><code>%s</code></li></ul></li>",
-            sprintf("%s: %s in %s line %s", $this->getDisplayName($extra), $message, $file, $line),
+            '<li><h2>%s</h2><ul><li>Memory used : %s</li>%s</ul></li>'.
+            '<li><h2>Output Buffer</h2><ul><li><code>%s</code></li></ul></li>',
+            sprintf('%s: %s in %s line %s', $this->getDisplayName($extra), $message, $file, $line),
             $this->formatMemory($this->getMemory($extra)),
             $this->traceToHtml($this->getTrace($extra)),
             htmlentities($handler->emptyOutputBuffers(), ENT_COMPAT, $this->getCharset())
@@ -50,7 +50,7 @@ class DebugHandler extends Handler
             $this->renderTemplate($template, array(
                 'charset' => $this->getCharset(),
                 'version' => $this->getVersion(),
-                'content' => $content
+                'content' => $content,
             ))
         );
     }
@@ -84,7 +84,7 @@ class DebugHandler extends Handler
     {
         $template = file_get_contents($file);
         if (false === $template) {
-            return "";
+            return '';
         }
         foreach ($values as $key => $value) {
             $template = preg_replace('/%'.$key.'%/', $value, $template, 1);
@@ -101,7 +101,7 @@ class DebugHandler extends Handler
         return round($memory / pow(1024, $unit), 2).' '.$units[$unit];
     }
 
-    protected function formatTrace(array $trace, $functionFmt="%s()", $fileFmt=" in %s", $lineFmt=" line %s", $includeArgs=true)
+    protected function formatTrace(array $trace, $functionFmt = '%s()', $fileFmt = ' in %s', $lineFmt = ' line %s', $includeArgs = true)
     {
         $formatedTrace = array();
 
@@ -113,7 +113,7 @@ class DebugHandler extends Handler
             if (isset($stack['file']) && ($stack['file'] === __FILE__)) {
                 continue;
             }
-            $message = "";
+            $message = '';
             if (isset($stack['class'])) {
                 $message .= $stack['class'];
             }
@@ -137,7 +137,7 @@ class DebugHandler extends Handler
             }
             $formatedTrace[] = array(
                 'message' => $message,
-                'args' => ($includeArgs && isset($stack['args']) && !empty($stack['args'])) ? $stack['args'] : null
+                'args' => ($includeArgs && isset($stack['args']) && !empty($stack['args'])) ? $stack['args'] : null,
             );
         }
 
@@ -146,7 +146,7 @@ class DebugHandler extends Handler
 
     protected function traceToHtml($trace)
     {
-        $html = "";
+        $html = '';
         foreach ($this->formatTrace($trace) as &$error) {
             if (empty($error['args'])) {
                 $html .= sprintf("<li>at %s</li>\n", $error['message']);
@@ -167,11 +167,11 @@ class DebugHandler extends Handler
 
     protected function argsToHtml($args)
     {
-        $html = "<table>";
+        $html = '<table>';
         $count = count($args);
-        for ($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; ++$i) {
             $arg = &$args[$i];
-            $type  = gettype($arg);
+            $type = gettype($arg);
             if ($type === 'boolean') {
                 $text = ($arg) ? 'true' : 'false';
                 $html .= "<tr><td><strong>$type</strong></td><td>$text</td></tr>";
@@ -180,8 +180,8 @@ class DebugHandler extends Handler
             if (($type === 'array') || ($type === 'object')) {
                 $text = $this->printReadable($arg, true);
                 if (mb_strlen($text) > $this->getMaxArgDisplaySize()) {
-                    $text = ($type === 'object') ? get_class($arg)." object" : count($arg)." element(s)";
-                    $text .= " <i>(content unavailable)</i>";
+                    $text = ($type === 'object') ? get_class($arg).' object' : count($arg).' element(s)';
+                    $text .= ' <i>(content unavailable)</i>';
                 }
                 $html .= "<tr><td><strong>$type</strong></td><td><code>$text</code></td></tr>";
                 continue;
@@ -204,28 +204,28 @@ class DebugHandler extends Handler
     protected function printReadable($array, $return = false, $depth = 0)
     {
         $items = array();
-        $html = "";
+        $html = '';
         foreach ($array as $key => $value) {
             $type = gettype($value);
-            if ($type === "array") {
+            if ($type === 'array') {
                 if (count($value) > 0) {
                     $value = $this->printReadable($value, $return, $depth + 1);
                 } else {
-                    $value = ucfirst($type)." (empty)";
+                    $value = ucfirst($type).' (empty)';
                 }
             } else {
                 switch ($type) {
-                    case "NULL":
+                    case 'NULL':
                         $value = $type;
                         break;
-                    case "boolean":
-                        $value = ($value === true) ? "true" : "false";
+                    case 'boolean':
+                        $value = ($value === true) ? 'true' : 'false';
                         break;
-                    case "string":
+                    case 'string':
                         $value = "'{$value}'";
                         break;
-                    case "object":
-                        $value = get_class($value)." object";
+                    case 'object':
+                        $value = get_class($value).' object';
                     default:
                         $value = $value;
                 }
@@ -233,22 +233,22 @@ class DebugHandler extends Handler
             $items[$key] = htmlentities($value);
         }
         if (count($items) > 0) {
-            $prefix = $tabs = "";
-            for ($i = 0; $i < $depth; $i++) {
-                $tabs .= "   ";
+            $prefix = $tabs = '';
+            for ($i = 0; $i < $depth; ++$i) {
+                $tabs .= '   ';
             }
             $array = (gettype($array) === 'object') ? get_class($array) : gettype($array);
             $html .= ucfirst($array)."\n{$tabs}(\n";
             foreach ($items as $key => &$value) {
-                $html .= "{$prefix}{$tabs}   [".( is_string($key) === true ? "'{$key}'" : $key )."] => {$value}";
+                $html .= "{$prefix}{$tabs}   [".(is_string($key) === true ? "'{$key}'" : $key)."] => {$value}";
                 $prefix = ",\n";
             }
             $html .= "\n{$tabs})";
         } else {
             if ('object' === gettype($array)) {
-                return get_class($array)." ()";
+                return get_class($array).' ()';
             } else {
-                return "Array ()";
+                return 'Array ()';
             }
         }
         if ($return === true) {
@@ -266,14 +266,14 @@ class DebugHandler extends Handler
         $content .= "</head><body>\n";
         $content .= "<h1>Internal Server Error</h1>\n";
         $content .= "<p>The server encountered an internal error and was unable to complete your request.</p>\n";
-        $content .= "</body></html>";
+        $content .= '</body></html>';
 
         return $this->sendResponseAndExit($content);
     }
 
     protected function sendErrorHeader()
     {
-        if (headers_sent() || !isset($_SERVER["REQUEST_URI"])) {
+        if (headers_sent() || !isset($_SERVER['REQUEST_URI'])) {
             return;
         }
         if (strpos(PHP_SAPI, 'cgi') > 0) {

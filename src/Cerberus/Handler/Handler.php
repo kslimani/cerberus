@@ -5,6 +5,7 @@
  */
 
 namespace Cerberus\Handler;
+
 use Cerberus\ErrorHandler;
 
 abstract class Handler implements HandlerInterface

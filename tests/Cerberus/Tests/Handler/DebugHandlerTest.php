@@ -49,7 +49,7 @@ class DebugHandlerTest extends HandlerTestCase
         $debugHandler = new DebugHandler();
         $this->eh->addHandler($debugHandler);
 
-        $exception = $this->createException(new MockException("Exception message"));
+        $exception = $this->createException(new MockException('Exception message'));
         $result = $this->handleException($exception);
 
         // DebugHandler abort and return false in PHP CLI

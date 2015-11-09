@@ -101,7 +101,7 @@ class LoggerHandlerTest extends HandlerTestCase
 
     public function testHandleException()
     {
-        $exception = $this->createException(new MockException("Exception message"));
+        $exception = $this->createException(new MockException('Exception message'));
         $this->handleException($exception);
 
         $line = $this->assertLine(1);
@@ -112,7 +112,7 @@ class LoggerHandlerTest extends HandlerTestCase
     public function testHandleHttpException()
     {
         // Non-critical HTTP exception
-        $exception = $this->createException(new MockHttpException(404, "Not found message"));
+        $exception = $this->createException(new MockHttpException(404, 'Not found message'));
         $this->handleException($exception);
 
         $line = $this->assertLine(1);
@@ -120,7 +120,7 @@ class LoggerHandlerTest extends HandlerTestCase
         $this->assertEquals($this->formatedExceptionMessage($exception), $line['message']);
 
         // Critical HTTP exception
-        $exception = $this->createException(new MockHttpException(500, "Critical message"));
+        $exception = $this->createException(new MockHttpException(500, 'Critical message'));
         $this->handleException($exception);
 
         $line = $this->assertLine(2);
@@ -128,7 +128,7 @@ class LoggerHandlerTest extends HandlerTestCase
         $this->assertEquals($this->formatedExceptionMessage($exception), $line['message']);
 
         // Non-critical HTTP exception with custom log level
-        $exception = $this->createException(new MockHttpException(404, "Not found message"));
+        $exception = $this->createException(new MockHttpException(404, 'Not found message'));
         $this->loggerHandler->setNonCriticalHttpExceptionLogLevel(LogLevel::NOTICE);
         $this->handleException($exception);
 
@@ -137,7 +137,7 @@ class LoggerHandlerTest extends HandlerTestCase
         $this->assertEquals($this->formatedExceptionMessage($exception), $line['message']);
 
         // Critical HTTP exception with custom log level
-        $exception = $this->createException(new MockHttpException(500, "Critical message"));
+        $exception = $this->createException(new MockHttpException(500, 'Critical message'));
         $this->loggerHandler->setCriticalHttpExceptionLogLevel(LogLevel::ALERT);
         $this->handleException($exception);
 
@@ -152,7 +152,7 @@ class LoggerHandlerTest extends HandlerTestCase
         $this->assertEquals(500, $this->loggerHandler->getHttpExceptionInterfaceFilterLevel());
 
         $this->loggerHandler->setHttpExceptionInterfaceFilterLevel(400);
-        $exception = $this->createException(new MockHttpException(404, "Not found message"));
+        $exception = $this->createException(new MockHttpException(404, 'Not found message'));
         $this->handleException($exception);
 
         $line = $this->assertLine(1);
@@ -160,5 +160,4 @@ class LoggerHandlerTest extends HandlerTestCase
         $this->assertEquals($this->formatedExceptionMessage($exception), $line['message']);
         $this->assertEquals(400, $this->loggerHandler->getHttpExceptionInterfaceFilterLevel());
     }
-
 }

@@ -79,7 +79,7 @@ class CallableHandlerTest extends HandlerTestCase
 
     public function testHandleException()
     {
-        $exception = $this->createException(new MockException("Exception message"));
+        $exception = $this->createException(new MockException('Exception message'));
 
         $this->eh->addHandler(function ($message, $extra) use ($exception) {
 
@@ -127,7 +127,7 @@ class CallableHandlerTest extends HandlerTestCase
             $e = $extra['exception'];
 
             $this->assertInstanceOf('ErrorException', $e);
-            $expectedDisplayType = sprintf("%s (%s)", get_class($e), $error->getDisplayType());
+            $expectedDisplayType = sprintf('%s (%s)', get_class($e), $error->getDisplayType());
             $this->assertEquals($expectedDisplayType, $extra['displayType']);
             $this->assertEquals($error->getType(), $e->getSeverity());
             $this->assertEquals($error->getMessage(), $e->getMessage());
@@ -196,7 +196,7 @@ class CallableHandlerTest extends HandlerTestCase
 
             $this->assertInstanceOf('Cerberus\Exception\ContextErrorException', $e);
             $this->assertEquals($error->getContext(), $e->getContext());
-            $expectedDisplayType = sprintf("%s (%s)", get_class($e), $error->getDisplayType());
+            $expectedDisplayType = sprintf('%s (%s)', get_class($e), $error->getDisplayType());
             $this->assertEquals($expectedDisplayType, $extra['displayType']);
             $this->assertEquals($error->getType(), $e->getSeverity());
             $this->assertEquals($error->getMessage(), $e->getMessage());
@@ -236,7 +236,7 @@ class CallableHandlerTest extends HandlerTestCase
 
     public function testHandleNoDebugException()
     {
-        $exception = $this->createException(new MockException("Exception message"));
+        $exception = $this->createException(new MockException('Exception message'));
 
         $this->eh->setDebug(false);
 

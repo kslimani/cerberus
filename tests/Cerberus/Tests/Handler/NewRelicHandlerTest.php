@@ -21,9 +21,9 @@ class NewRelicHandlerTest extends HandlerTestCase
 
     public function setUp()
     {
-        self::$appName = "";
-        self::$transactionName = "";
-        self::$message = "";
+        self::$appName = '';
+        self::$transactionName = '';
+        self::$message = '';
         self::$exception = null;
         parent::SetUp();
     }
@@ -56,7 +56,7 @@ class NewRelicHandlerTest extends HandlerTestCase
         $handler = new NewRelicHandlerWithExtension();
         $this->eh->addHandler($handler);
 
-        $exception = $this->createException(new MockException("Exception message"));
+        $exception = $this->createException(new MockException('Exception message'));
         $this->handleException($exception);
 
         $this->assertInstanceOf('\Exception', self::$exception);
@@ -68,12 +68,12 @@ class NewRelicHandlerTest extends HandlerTestCase
 
     public function testAppName()
     {
-        $handler = new NewRelicHandlerWithExtension(false, "MockedApplicationName");
+        $handler = new NewRelicHandlerWithExtension(false, 'MockedApplicationName');
 
-        $this->assertEquals("MockedApplicationName", self::$appName);
+        $this->assertEquals('MockedApplicationName', self::$appName);
 
-        $handler->setAppName("AnotherName");
-        $this->assertEquals("AnotherName", self::$appName);
+        $handler->setAppName('AnotherName');
+        $this->assertEquals('AnotherName', self::$appName);
     }
 
     public function testTransactionName()
@@ -82,8 +82,8 @@ class NewRelicHandlerTest extends HandlerTestCase
 
         $this->assertEmpty(self::$transactionName);
 
-        $handler->setTransactionName("MockedTransactionName");
-        $this->assertEquals("MockedTransactionName", self::$transactionName);
+        $handler->setTransactionName('MockedTransactionName');
+        $this->assertEquals('MockedTransactionName', self::$transactionName);
     }
 
     public function testHttpExceptionInterfaceFilterLevel()
