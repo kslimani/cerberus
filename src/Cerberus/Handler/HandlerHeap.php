@@ -12,7 +12,10 @@ class HandlerHeap extends \SplHeap
     {
         $p1 = $handler1->getPriority();
         $p2 = $handler2->getPriority();
-        if ($p1 === $p2) return 0;
+        if ($p1 === $p2) {
+            return 0;
+        }
+
         return ($p1 < $p2) ? -1 : 1;
     }
 }

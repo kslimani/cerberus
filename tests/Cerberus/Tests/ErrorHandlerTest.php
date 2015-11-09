@@ -98,7 +98,7 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
 
         // Ensure Exception backtrace exists with debug disabled
         try {
-            throw new \Exception("Fatal error message");
+            throw new \Exception('Fatal error message');
         } catch (\Exception $exception) {
         }
         $this->eh->onException($exception);
@@ -109,5 +109,4 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayNotHasKey('trace', $extra);
         $this->assertNotEmpty($handler->getTrace($extra));
     }
-
 }

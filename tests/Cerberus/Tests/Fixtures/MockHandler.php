@@ -24,7 +24,7 @@ class MockHandler extends Handler
             'message' => $message,
             'file' => $file,
             'line' => $line,
-            'extra' => $extra
+            'extra' => $extra,
         );
 
         return false; // Delegate to next handler

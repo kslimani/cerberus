@@ -30,7 +30,7 @@ class CallableHandler extends Handler
                 'file' => $file,
                 'line' => $line,
                 'message' => $message,
-                'type' => $type
+                'type' => $type,
             );
         }
 
@@ -40,5 +40,4 @@ class CallableHandler extends Handler
             $extra
         );
     }
-
 }

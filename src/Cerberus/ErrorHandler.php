@@ -6,7 +6,6 @@
 
 namespace Cerberus;
 
-use Cerberus\Handler\Handler;
 use Cerberus\Handler\HandlerList;
 use Cerberus\Handler\CallableHandler;
 use Cerberus\Exception\ContextErrorException;
@@ -161,7 +160,7 @@ class ErrorHandler
             $line,
             $this->getErrorExtra(array(
                 'displayType' => self::errorType($type),
-                'context' => $context
+                'context' => $context,
             ))
         );
 
@@ -177,7 +176,7 @@ class ErrorHandler
     public function onException(\Exception $e)
     {
         if ($e instanceof \ErrorException) {
-            $displayType = sprintf("%s (%s)", get_class($e), self::errorType($e->getSeverity()));
+            $displayType = sprintf('%s (%s)', get_class($e), self::errorType($e->getSeverity()));
         } else {
             $displayType = get_class($e);
         }
@@ -189,7 +188,7 @@ class ErrorHandler
             $e->getLine(),
             $this->getErrorExtra(array(
                 'displayType' => $displayType,
-                'exception' => $e
+                'exception' => $e,
             ))
         );
 
@@ -219,7 +218,7 @@ class ErrorHandler
                 $err['file'],
                 $err['line'],
                 $this->getErrorExtra(array(
-                    'displayType' => self::errorType($err['type'])
+                    'displayType' => self::errorType($err['type']),
                 ))
             );
         }
@@ -265,7 +264,7 @@ class ErrorHandler
                 E_PARSE,
                 E_CORE_ERROR,
                 E_COMPILE_ERROR,
-                E_USER_ERROR
+                E_USER_ERROR,
             )
         );
     }

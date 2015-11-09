@@ -12,7 +12,7 @@ abstract class HandlerTestCase extends \PHPUnit_Framework_TestCase
     protected function createContext()
     {
         return array(
-            'mock' => 'context'
+            'mock' => 'context',
         );
     }
 
